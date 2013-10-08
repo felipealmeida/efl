@@ -7,6 +7,7 @@
 #include "Eo.h"
 #include "eo_ptr_indirection.h"
 #include "eo_private.h"
+#include "eina_log.h"
 
 /* The last id that should be reserved for statically allocated classes. */
 #define EO_CLASS_IDS_FIRST 1
@@ -1903,9 +1904,9 @@ eo_init(void)
    _eo_class_isa_func(NULL, NULL, NULL);
 #endif
 
-   eina_log_timing(_eo_log_dom,
-                   EINA_LOG_STATE_STOP,
-                   EINA_LOG_STATE_INIT);
+   /* eina_log_timing(_eo_log_dom, */
+   /*                 EINA_LOG_STATE_STOP, */
+   /*                 EINA_LOG_STATE_INIT); */
 
    return EINA_TRUE;
 }
@@ -1919,9 +1920,9 @@ eo_shutdown(void)
    if (--_eo_init_count > 0)
      return EINA_TRUE;
 
-   eina_log_timing(_eo_log_dom,
-                   EINA_LOG_STATE_START,
-                   EINA_LOG_STATE_SHUTDOWN);
+   /* eina_log_timing(_eo_log_dom, */
+   /*                 EINA_LOG_STATE_START, */
+   /*                 EINA_LOG_STATE_SHUTDOWN); */
 
    for (i = 0 ; i < _eo_classes_last_id ; i++, cls_itr++)
      {
@@ -2007,4 +2008,6 @@ eo_manual_free(Eo *obj_id)
 
    _eo_free(obj);
 }
+
+/************************************ EO3 ************************************/
 

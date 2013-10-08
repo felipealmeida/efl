@@ -1,6 +1,8 @@
 #ifndef _EO_PRIVATE_H
 #define _EO_PRIVATE_H
 
+#include <assert.h>
+
 #define EO_EINA_MAGIC 0xa186bc32
 #define EO_EINA_MAGIC_STR "Eo"
 #define EO_FREED_EINA_MAGIC 0xa186bb32
@@ -37,7 +39,7 @@ extern int _eo_log_dom;
 #ifdef ERR
 #undef ERR
 #endif
-#define ERR(...) EINA_LOG_DOM_ERR(_eo_log_dom, __VA_ARGS__)
+#define ERR(...) EINA_LOG_DOM_ERR(_eo_log_dom, __VA_ARGS__), assert(0)
 
 #ifdef WRN
 #undef WRN

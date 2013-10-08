@@ -5,6 +5,7 @@
 #include "eo_simple.h"
 #include "eo_inherit.h"
 #include "eo2_simple.h"
+#include "eo3_simple.h"
 #include "eo2_inherit.h"
 
 static void report(struct timespec t0, struct timespec t1,
@@ -43,12 +44,12 @@ static void check(int val, int expected)
    check(v, n * k);                       \
 
 #define EO2_RUN_START                     \
-   eo2_do(eo2_obj, eo2_set(0); );         \
+  eo2_do(eo2_obj, simple_set(0); );       \
    clock_gettime(CLOCK_MONOTONIC, &t2);   \
 
 #define EO2_RUN_END                       \
    clock_gettime(CLOCK_MONOTONIC, &t3);   \
-   eo2_do(eo2_obj, v = eo2_get(); );      \
+   eo2_do(eo2_obj, v = simple_get(); );      \
    check(v, n * k);                       \
 
 static void
@@ -80,7 +81,7 @@ run_batch(const char *title, Eo* eo_obj, Eo* eo2_obj, int n)
      }
    EO2_RUN_START
    for (i = 0; i < n; i++)
-     eo2_do(eo2_obj, eo2_inc(); );
+     eo2_do(eo2_obj, simple_inc(); );
    EO2_RUN_END
    report(t0, t1, t2, t3, k, n * k);
 
@@ -95,7 +96,7 @@ run_batch(const char *title, Eo* eo_obj, Eo* eo2_obj, int n)
      }
    EO2_RUN_START
    for (i = 0; i < n; i++)
-     eo2_do(eo2_obj, eo2_inc(); eo2_inc(); eo2_inc(); );
+     eo2_do(eo2_obj, simple_inc(); simple_inc(); simple_inc(); );
    EO2_RUN_END
    report(t0, t1, t2, t3, k, n * k);
 
@@ -110,7 +111,7 @@ run_batch(const char *title, Eo* eo_obj, Eo* eo2_obj, int n)
      }
    EO2_RUN_START
    for (i = 0; i < n; i++)
-     eo2_do(eo2_obj, eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); );
+     eo2_do(eo2_obj, simple_inc(); simple_inc(); simple_inc(); simple_inc(); simple_inc(); );
    EO2_RUN_END
    report(t0, t1, t2, t3, k, n * k);
 
@@ -125,7 +126,7 @@ run_batch(const char *title, Eo* eo_obj, Eo* eo2_obj, int n)
      }
    EO2_RUN_START
    for (i = 0; i < n; i++)
-     eo2_do(eo2_obj, eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); eo2_inc(); );
+     eo2_do(eo2_obj, simple_inc(); simple_inc(); simple_inc(); simple_inc(); simple_inc(); simple_inc(); simple_inc(); );
    EO2_RUN_END
    report(t0, t1, t2, t3, k, n * k);
 }
@@ -137,7 +138,7 @@ do_batch_test()
    Eo *eo_obj, *eo2_obj;
 
    eo_obj = eo_add(EO_SIMPLE_CLASS, NULL);
-   eo2_obj = eo2_add_custom(EO2_SIMPLE_CLASS, NULL, eo2_simple_constructor(66));
+   eo2_obj = eo2_add_custom(EO3_GET_CLASS(EO3_SIMPLE_CLASS)/*EO2_SIMPLE_CLASS*/, NULL, /*eo2_*/simple_constructor(66));
 
    /* EO check */
    a = b = c = 0;
@@ -148,13 +149,13 @@ do_batch_test()
    /* EO2 check */
    a = b = c = 0;
    eo2_do(eo2_obj,
-          a = eo2_get();
-          eo2_set(10);
-          eo2_inc();
-          b = eo2_get();
-          eo2_inc();
-          eo2_inc();
-          c = eo2_get();
+          a = simple_get();
+          simple_set(10);
+          simple_inc();
+          b = simple_get();
+          simple_inc();
+          simple_inc();
+          c = simple_get();
           );
    check(a, 66);
    check(b, 11);
@@ -166,63 +167,63 @@ do_batch_test()
    eo_del(eo2_obj);
 }
 
-static void
-override_batch_test()
-{
-   int a, b;
-   Eo *eo_obj, *eo2_obj;
+/* static void */
+/* override_batch_test() */
+/* { */
+/*    int a, b; */
+/*    Eo *eo_obj, *eo2_obj; */
 
-   a = b = 0;
-   eo_obj = eo_add(EO_INHERIT_CLASS, NULL);
-   eo2_obj = eo2_add(EO2_INHERIT_CLASS, NULL);
+/*    a = b = 0; */
+/*    eo_obj = eo_add(EO_INHERIT_CLASS, NULL); */
+/*    eo2_obj = eo2_add(EO2_INHERIT_CLASS, NULL); */
 
-   /* EO check */
-   eo_do(eo_obj, eo_set(65), eo_get(&a), eo_inherit_get(&b));
-   check(a, 65);
-   check(b, 68);
-   eo_do(eo_obj, eo_inc(), eo_get(&a), eo_inherit_get(&b));
-   check(a, 66);
-   check(b, 69);
+/*    /\* EO check *\/ */
+/*    eo_do(eo_obj, eo_set(65), eo_get(&a), eo_inherit_get(&b)); */
+/*    check(a, 65); */
+/*    check(b, 68); */
+/*    eo_do(eo_obj, eo_inc(), eo_get(&a), eo_inherit_get(&b)); */
+/*    check(a, 66); */
+/*    check(b, 69); */
 
-   /* EO2 check */
-   eo2_do(eo2_obj, eo2_set(65); a = eo2_get(); b = eo2_inherit_get(); );
-   check(a, 65);
-   check(b, 68);
-   eo2_do(eo2_obj, eo2_inc(); a = eo2_get(); b = eo2_inherit_get(); );
-   check(a, 66);
-   check(b, 69);
+/*    /\* EO2 check *\/ */
+/*    eo2_do(eo2_obj, eo2_set(65); a = eo2_get(); b = eo2_inherit_get(); ); */
+/*    check(a, 65); */
+/*    check(b, 68); */
+/*    eo2_do(eo2_obj, eo2_inc(); a = eo2_get(); b = eo2_inherit_get(); ); */
+/*    check(a, 66); */
+/*    check(b, 69); */
 
-   run_batch("overriden inc", eo_obj, eo2_obj, 99999);
+/*    run_batch("overriden inc", eo_obj, eo2_obj, 99999); */
 
-   eo_del(eo_obj);
-   eo_del(eo2_obj);
-}
+/*    eo_del(eo_obj); */
+/*    eo_del(eo2_obj); */
+/* } */
 
-static void
-virtual_test()
-{
-   int a;
-   Eo *eo2_obj;
+/* static void */
+/* virtual_test() */
+/* { */
+/*    int a; */
+/*    Eo *eo2_obj; */
 
-   a = 0;
-   eo2_obj = eo2_add_custom(EO2_SIMPLE_CLASS, NULL, eo2_simple_constructor(66));
-   eo2_do(eo2_obj, a = eo2_virtual(10); );
-   check(a, -1);
-   eo_del(eo2_obj);
+/*    a = 0; */
+/*    eo2_obj = eo2_add_custom(EO2_SIMPLE_CLASS, NULL, eo2_simple_constructor(66)); */
+/*    eo2_do(eo2_obj, a = eo2_virtual(10); ); */
+/*    check(a, -1); */
+/*    eo_del(eo2_obj); */
 
-   a = 0;
-   eo2_obj = eo2_add(EO2_INHERIT_CLASS, NULL);
-   eo2_do(eo2_obj, a = eo2_virtual(10); );
-   check(a, 20);
-   eo_del(eo2_obj);
-}
+/*    a = 0; */
+/*    eo2_obj = eo2_add(EO2_INHERIT_CLASS, NULL); */
+/*    eo2_do(eo2_obj, a = eo2_virtual(10); ); */
+/*    check(a, 20); */
+/*    eo_del(eo2_obj); */
+/* } */
 
 static void inner_return(Eo *eo2_obj)
 {
    eo2_do(eo2_obj,
-          eo2_set(0);
+          simple_set(0);
           return;
-          eo2_inc();
+          simple_inc();
           );
 }
 
@@ -232,18 +233,18 @@ cleanup_test()
    int a;
    Eo *eo2_obj;
 
-   eo2_obj = eo2_add_custom(EO2_SIMPLE_CLASS, NULL, eo2_simple_constructor(66));
+   eo2_obj = eo2_add_custom(EO3_GET_CLASS(EO3_SIMPLE_CLASS)/*EO2_SIMPLE_CLASS*/, NULL, /*eo2_*/simple_constructor(66));
 
    /* break */
    a = 0;
    check(eo2_call_stack_depth(), 0);
    eo2_do(eo2_obj,
-          eo2_set(0);
+          simple_set(0);
           check(eo2_call_stack_depth(), 1);
-          a = eo2_get();
+          a = simple_get();
           break;
-          eo2_inc();
-          a = eo2_get();
+          simple_inc();
+          a = simple_get();
           );
    check(a, 0);
    check(eo2_call_stack_depth(), 0);
@@ -252,7 +253,7 @@ cleanup_test()
    a = 0;
    check(eo2_call_stack_depth(), 0);
    inner_return(eo2_obj);
-   eo2_do(eo2_obj, a = eo2_get(); );
+   eo2_do(eo2_obj, a = simple_get(); );
    check(a, 0);
    check(eo2_call_stack_depth(), 0);
 
@@ -260,12 +261,12 @@ cleanup_test()
    a = 0;
    check(eo2_call_stack_depth(), 0);
    eo2_do(eo2_obj,
-          eo2_set(0);
-          a = eo2_get();
+          simple_set(0);
+          a = simple_get();
           check(eo2_call_stack_depth(), 1);
           goto check;
-          eo2_inc();
-          a = eo2_get();
+          simple_inc();
+          a = simple_get();
           );
 
 check:
@@ -275,7 +276,7 @@ check:
    /* wrong object */
    check(eo2_call_stack_depth(), 0);
    // segfault if eo2_do_end is called !!
-   eo2_do((Eo *)69, eo2_set(0););
+   eo2_do((Eo *)69, simple_set(0););
 
    eo_del(eo2_obj);
 
@@ -288,12 +289,12 @@ main(int argc EINA_UNUSED, char** argv EINA_UNUSED, char** env EINA_UNUSED)
    eo_init();
 
    do_batch_test();
-   override_batch_test();
-   virtual_test();
-   if(cleanup_test())
-     printf("something went wrong in cleanup_test()\n");
+   /* override_batch_test(); */
+   /* virtual_test(); */
+   /* if(cleanup_test()) */
+   /*   printf("something went wrong in cleanup_test()\n"); */
 
-   eo2_class_do(EO2_INHERIT_CLASS, eo2_class_hello(2); );
+   /* eo2_class_do(EO2_INHERIT_CLASS, eo2_class_hello(2); ); */
 
    eo_shutdown();
 
